@@ -1,23 +1,25 @@
-const mongoose = require("mongoose")
-require("dotenv").config()
+const mongoose = require("mongoose");
+const { db } = require("./config/config");
 
 // =========================================
 //        CONSTANTS & CONFIGARATIONS
 // =========================================
-mongoose.set('strictQuery', false);
+mongoose.set("strictQuery", false);
 
-const username = process.env.DB_USER
-const password = process.env.DB_PASS
-
-const url = `mongodb+srv://${username}:${password}@cluster01.rvhjwez.mongodb.net/?retryWrites=true&w=majority`
+const url = `mongodb://${db.host}:${db.port}`;
 
 // =========================================
 //         CONNECT TO MONGODB
 // =========================================
-mongoose.connect(url, { dbName: "fakebook", useNewUrlParser: true, useUnifiedTopology: true })
+mongoose
+    .connect(url, {
+        dbName: db.name,
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
     .then(() => {
-        console.log('🟢 Connected to MongoDB\n');
+        console.log("🟢 Connected to MongoDB\n");
     })
     .catch((error) => {
-        console.error('Error connecting to MongoDB: ', error);
+        console.error("🔴 Error connecting to MongoDB: ", error);
     });
