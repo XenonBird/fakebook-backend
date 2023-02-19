@@ -93,6 +93,10 @@ const addLikePostById = async (req, res) => {
     const { user } = req.body;
 
     try {
+        if (!user) {
+            return res.status(404).json({ error: "User not defined " });
+        }
+
         const post = await Post.findById(postId);
 
         if (!post) {
@@ -117,6 +121,10 @@ const removeLikePostById = async (req, res) => {
     const { user } = req.body;
 
     try {
+        if (!user) {
+            return res.status(404).json({ error: "User not defined " });
+        }
+        
         const post = await Post.findById(postId);
 
         if (!post) {

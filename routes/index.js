@@ -5,8 +5,10 @@ const indexRouters = require("express").Router();
 
 indexRouters.get("/", async (req, res) => {
     try {
-        const users = await User.find({});
-        const posts = await Post.find({});
+        const users = await User.find({}).populate("posts", "content image");
+        const posts = await Post.find({})
+            .populate("likes", "username")
+            .populate("comments", "content author");
 
         res.status(200).json({
             users,
