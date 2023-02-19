@@ -4,7 +4,9 @@ const ip = require("ip");
 const cors = require("cors");
 
 const { port } = require("./config/config");
+const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const indexRouters = require("./routes");
 
 // =========================================
 //        CONSTANTS & CONFIGURATIONS
@@ -21,7 +23,13 @@ app.use(morgan("common"));
 // =========================================
 //                  ROUTES
 // =========================================
+app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api", indexRouters);
+
+app.use("/*", (req, res) => {
+    res.status(404).json("Not found");
+});
 
 // =========================================
 //                  LISTEN
