@@ -4,9 +4,11 @@ const ip = require("ip");
 const cors = require("cors");
 
 const { port } = require("./config/config");
+const indexRouters = require("./routes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const indexRouters = require("./routes");
+const postRoutes = require("./routes/postRoute");
+const commentRoutes = require("./routes/commentRoute");
 
 // =========================================
 //        CONSTANTS & CONFIGURATIONS
@@ -25,6 +27,8 @@ app.use(morgan("common"));
 // =========================================
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/post/:postId/comment", commentRoutes);
+app.use("/api/post", postRoutes);
 app.use("/api", indexRouters);
 
 app.use("/*", (req, res) => {
