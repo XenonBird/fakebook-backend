@@ -1,4 +1,5 @@
-# MERN Stack Social Media App - Fakebook-Backend
+# MERN Stack Social Media App 
+# Fakebook - Backend
 
 This is the backend component of a social media app built using the MERN stack. The backend is built using Node.js, Express, and MongoDB, and it provides the necessary endpoints to manage users, posts, and comments for the app.
 
