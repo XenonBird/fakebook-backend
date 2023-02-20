@@ -33,6 +33,7 @@ const getPostById = async (req, res) => {
     try {
         const post = await Post.findById(postId)
             .populate("author", "username email")
+            .populate("comments", "content author")
             .populate("likes", "username email");
 
         if (!post) {

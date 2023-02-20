@@ -2,17 +2,24 @@ const Comment = require("../models/comment");
 const Post = require("../models/post");
 
 const createComment = async (req, res) => {
-    const { postId } = req.query;
+    const { postId } = req.params;
     const { content, author } = req.body;
 
     try {
         // All validation goes here
-        console.log({postId});
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "post not found" });
+        }
+
+        if (!content) {
+            return res.status(404).json({ error: "content not found" });
+        }
+
         const newComment = new Comment({ content, author, post: postId });
         const comment = await newComment.save();
 
-        const post = await Post.findById(postId);
-        post.posts.push(comment._id);
+        post.comments.push(comment._id);
         post.save();
 
         res.status(200).json(comment);
@@ -64,7 +71,7 @@ const deleteCommentById = async (req, res) => {
     const { commentId } = req.params;
 
     try {
-        const comment = await Comment.findByIdAndRemove(commentId);
+        const comment = await Comment.deleteOne({ _id: commentId });
 
         if (!comment) {
             return res.status(404).json({ error: "comment not found" });
@@ -77,7 +84,7 @@ const deleteCommentById = async (req, res) => {
 
         res.status(200).json(comment);
     } catch (error) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: error.message });
     }
 };
 
