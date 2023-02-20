@@ -20,7 +20,7 @@ const createComment = async (req, res) => {
         const comment = await newComment.save();
 
         post.comments.push(comment._id);
-        post.save();
+        await post.save();
 
         res.status(200).json(comment);
     } catch (error) {
@@ -59,6 +59,11 @@ const updateCommentById = async (req, res) => {
 
         comment.content = content || comment.content;
 
+        if (!comment.content) {
+            res.status(500).json(
+                "content and image both can not be empty at the same time"
+            );
+        }
         await comment.save();
 
         res.status(202).json(comment);

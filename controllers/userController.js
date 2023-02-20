@@ -49,9 +49,15 @@ const createUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try {
+        if (!xor(username, email)) {
+            return res
+                .status(401)
+                .json({ error: "Username or E-mail is required" });
+        }
+
         // Find the user with the given email
         const user = await User.findOne({ email });
 
@@ -89,11 +95,14 @@ const getUserById = async (req, res) => {
 
     try {
         // Find the user with the given ID
-        const user = await User.findById(userId)
-        // .populate(
-        //     "following followers posts"
-        // );
+        if (!userId || typeof userId !== string || string.length === 24) {
+            return res.status(404).json({ error: "UserId invalid" });
+        }
 
+        const user = await User.findById(userId)
+            .populate("posts", "content createdAt")
+            .populate("followers", "username")
+            .populate("following", "username");
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -136,7 +145,7 @@ const deleteUserById = async (req, res) => {
 
     try {
         // Find the user with the given ID and remove it from the database
-        const user = await User.findByIdAndRemove(userId);
+        const user = await User.deleteOne({ _id: userId });
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });

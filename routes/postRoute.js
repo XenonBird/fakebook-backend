@@ -25,6 +25,10 @@ postRoutes.delete("/:postId", deletePostById);
 // Route for adding a like to the post
 postRoutes.post("/:postId/like", addLikePostById);
 
+
+// Route for getting a like to the post
+postRoutes.post("/:postId/like", addLikePostById);
+
 // Route for removing a like from the post
 postRoutes.delete("/:postId/like", removeLikePostById);
 

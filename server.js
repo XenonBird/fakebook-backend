@@ -32,7 +32,7 @@ app.use("/api/comment", commentRoutes);
 app.use("/api", indexRouters);
 
 app.use("/*", (req, res) => {
-    res.status(404).json("Not found");
+    res.status(404).json("Not found this page");
 });
 
 // =========================================

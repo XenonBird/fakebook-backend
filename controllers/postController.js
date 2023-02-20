@@ -5,6 +5,9 @@ const createPost = async (req, res) => {
     const { content, image = "", author } = req.body;
 
     try {
+        if (!content && !image) {
+            res.status(500).json("content or image is required");
+        }
         // All validation goes here
 
         const newPost = new Post({ content, image, author });
@@ -59,6 +62,12 @@ const updatePostById = async (req, res) => {
 
         post.content = content || post.content;
         post.image = image || post.image;
+
+        if (!post.content && !post.image) {
+            res.status(500).json(
+                "content and image both can not be empty at the same time"
+            );
+        }
 
         await post.save();
 
@@ -117,6 +126,24 @@ const addLikePostById = async (req, res) => {
     }
 };
 
+// const getLikePostById = async (req, res) => {
+//     const { postId } = req.params;
+//     try {
+//         const post = await Post.findById(postId)
+//             .populate("author", "username email")
+//             .populate("comments", "content author")
+//             .populate("likes", "username email");
+
+//         if (!post) {
+//             return res.status(404).json({ error: "Post not found" });
+//         }
+
+//         res.status(200).json(post);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+
 const removeLikePostById = async (req, res) => {
     const { postId } = req.params;
     const { user } = req.body;
@@ -125,7 +152,7 @@ const removeLikePostById = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "User not defined " });
         }
-        
+
         const post = await Post.findById(postId);
 
         if (!post) {
