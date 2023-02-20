@@ -75,3 +75,13 @@ The API endpoints for the backend are as follows:
 - `GET /api/comment/:commentId` - Gets the details of a comment with the specified ID for a post with the specified ID.
 - `PUT /api/comment/:commentId` - Updates the details of a comment with the specified ID for a post with the specified ID. The body of the request should contain the updated
 - `DELETE /api/comment/:commentId` - Deletes the comment by specified ID.
+
+
+# Licensing Information
+😉 We want to make it easy for everyone to use, learn, practice and build upon our work, so we have chosen to make everything on this page copyright-free.
+
+👍 Feel free to use and share any of the content you find here, without the need for attribution or any other restrictions. We believe that collaboration and innovation are best supported by open access to knowledge and ideas, so we want to do our part to promote that ideal.
+
+💖 If you do use any of our content, we would love to hear about it and see what you've created! You can reach out to us at any time via [contact information].
+
+😊 Thank you for considering our work, and we hope that it can be of use to you in your own projects. 
