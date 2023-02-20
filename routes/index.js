@@ -1,3 +1,4 @@
+const Comment = require("../models/comment");
 const Post = require("../models/post");
 const User = require("../models/user");
 
@@ -9,6 +10,10 @@ indexRouters.get("/", async (req, res) => {
         const posts = await Post.find({})
             .populate("likes", "username")
             .populate("comments", "content author");
+        const comments = await Comment.find({})
+            .populate("author", "username")
+            .populate("likes", "username")
+            .populate("post", "content");
 
         res.status(200).json({
             users,
