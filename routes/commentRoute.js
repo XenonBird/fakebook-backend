@@ -7,23 +7,24 @@ const {
     addLikeCommentById,
     removeLikeCommentById,
 } = require("../controllers/commentController");
+const verifyToken = require("../middlewares/verifyToken");
 
 // Create a new comment for a post
-commentRoutes.post("/:postId/new", createComment);
+commentRoutes.post("/:postId/new", verifyToken, createComment);
 
 // Get a specific comment by ID
 commentRoutes.get("/:commentId", getCommentById);
 
 // Update a specific comment by ID
-commentRoutes.put("/:commentId", updateCommentById);
+commentRoutes.put("/:commentId", verifyToken, updateCommentById);
 
 // Delete a specific comment by ID
-commentRoutes.delete("/:commentId", deleteCommentById);
+commentRoutes.delete("/:commentId", verifyToken, deleteCommentById);
 
 // Like a specific comment by ID
-commentRoutes.post("/:commentId/like", addLikeCommentById);
+commentRoutes.post("/:commentId/like", verifyToken, addLikeCommentById);
 
 // Remove a like from a specific comment by ID
-commentRoutes.delete("/:commentId/like", removeLikeCommentById);
+commentRoutes.delete("/:commentId/like", verifyToken, removeLikeCommentById);
 
 module.exports = commentRoutes;

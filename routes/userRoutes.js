@@ -5,14 +5,15 @@ const {
     updateUserById,
     deleteUserById,
 } = require("../controllers/userController");
+const verifyToken = require("../middlewares/verifyToken");
 
 // Route for fetching a user by ID
-userRoutes.get("/:userId", getUserById);
+userRoutes.get("/:userId", verifyToken, getUserById);
 
 // Route for updating a user by ID
-userRoutes.put("/:userId", updateUserById);
+userRoutes.put("/:userId", verifyToken, updateUserById);
 
 // Route for deleting a user by ID
-userRoutes.delete("/:userId", deleteUserById);
+userRoutes.delete("/:userId", verifyToken, deleteUserById);
 
 module.exports = userRoutes;
