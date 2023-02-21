@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const postRoutes = require("./routes/postRoute");
 const commentRoutes = require("./routes/commentRoute");
+const { notFound, errorHandling } = require("./middlewares/errorHandling");
 
 // =========================================
 //        CONSTANTS & CONFIGURATIONS
@@ -30,10 +31,9 @@ app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/comment", commentRoutes);
 app.use("/api", indexRouters);
-
-app.use("/*", (req, res) => {
-    res.status(404).json("Not found this page");
-});
+// Error handling
+app.use("/", notFound);
+app.use("/", errorHandling);
 
 // =========================================
 //                  LISTEN
