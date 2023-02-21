@@ -2,9 +2,9 @@ const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/config");
 
 const verifyToken = async (req, res, next) => {
+    console.log("verification triggered");
     try {
         const token = req.headers.token || req.body.token;
-        const ip = req.ip;
 
         if (!token) {
             return res.status(400).json("Token not found");
@@ -30,9 +30,12 @@ const verifyToken = async (req, res, next) => {
 
         const { iat, ...data } = decodedToken;
 
-        const newToken = jwt.decode(data, jwtSecret);
+        const newToken = jwt.sign(data, jwtSecret);
         req.token = newToken;
-        req.header("token", newToken);
+        // res.set({ token: newToken });
+        res.set({
+            token: newToken,
+        });
 
         next();
     } catch (error) {

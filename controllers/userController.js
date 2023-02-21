@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { jwtSecret } = require("../config/config");
-const { xor } = require("../utils/utils");
 
 const createUser = async (req, res) => {
     const { username, email, password, bio, profilePicture } = req.body;
@@ -39,11 +38,15 @@ const createUser = async (req, res) => {
         const user = new User({ username, email, hash, bio, profilePicture });
         await user.save();
 
-        // Generate a JWT token for the new user
-        const token = jwt.sign({ id: user._id, ip: req.ip }, jwtSecret);
+        // Generate a JWT token for the authenticated user
+        const data = { id: user._id, ip: req.ip };
 
-        // Respond with the new user and the JWT token
-        res.status(201).json({ user, token });
+        // Respond with the authenticated user and the JWT token
+        const newToken = jwt.sign(data, jwtSecret);
+        req.token = newToken;
+        res.header("token", newToken);
+
+        res.status(201).json({ user, token: newToken });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -53,14 +56,17 @@ const loginUser = async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        if (!xor(username, email)) {
+        if (!username && !email) {
             return res
                 .status(401)
                 .json({ error: "Username or E-mail is required" });
         }
 
         // Find the user with the given email
-        const user = await User.findOne({ email });
+        var user = await User.findOne({ email });
+        if (!user) {
+            user = await User.findOne({ username });
+        }
 
         if (!user) {
             return res.status(401).json({ error: "Invalid email or password" });
@@ -74,12 +80,16 @@ const loginUser = async (req, res) => {
         }
 
         // Generate a JWT token for the authenticated user
-        const token = jwt.sign({ id: user._id, ip: req.ip }, jwtSecret);
+        const data = { id: user._id, ip: req.ip };
 
         // Respond with the authenticated user and the JWT token
-        res.json({ user, token });
+        const newToken = jwt.sign(data, jwtSecret);
+        req.token = newToken;
+        res.header("token", newToken);
+
+        res.status(201).json({ user, token: newToken });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message, stack: err.stack });
     }
 };
 

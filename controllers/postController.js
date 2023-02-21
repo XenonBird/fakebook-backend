@@ -6,7 +6,7 @@ const createPost = async (req, res) => {
 
     try {
         if (!content && !image) {
-            res.status(500).json("content or image is required");
+            return res.status(500).json("content or image is required");
         }
         // All validation goes here
 
