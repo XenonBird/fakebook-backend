@@ -30,6 +30,6 @@ postRoutes.post("/:postId/like", verifyToken, addLikePostById);
 postRoutes.post("/:postId/like", verifyToken, addLikePostById);
 
 // Route for removing a like from the post
-postRoutes.delete("/:postId/like", verifyToken, removeLikePostById);
+postRoutes.post("/:postId/unlike", verifyToken, removeLikePostById);
 
 module.exports = postRoutes;
