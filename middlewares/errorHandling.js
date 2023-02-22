@@ -5,6 +5,7 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandling = (err, req, res, next) => {
+    console.log("errorHandling triggered");
     const statusCode = res.statusCode || 500;
     const message = err.message || "Internal server error";
     const stack = err.stack;

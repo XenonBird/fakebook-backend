@@ -3,31 +3,28 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { jwtSecret } = require("../config/config");
 
-const createUser = async (req, res) => {
-    const { username, email, password, bio, profilePicture } = req.body;
-
+const createUser = async (req, res, next) => {
     try {
+        const { username, email, password, bio, profilePicture } = req.body;
+
         // Check if all required inputs are given or not
         if (!username || !email || !password) {
-            return res
-                .status(401)
-                .json({ error: "username, email or password is empty" });
+            res.status(401);
+            throw Error("🔴 username, email or password is empty");
         }
 
         // Check if username already exist
         const ifUsernameExist = await User.findOne({ username });
         if (ifUsernameExist) {
-            return res
-                .status(401)
-                .json({ error: "Username is already registered " });
+            res.status(401);
+            throw Error("🔴 Username is already registered");
         }
 
         // Check if email already exist
-        const ifEmailExist = await User.findOne({ username });
+        const ifEmailExist = await User.findOne({ email });
         if (ifEmailExist) {
-            return res
-                .status(401)
-                .json({ error: "Email is already registered " });
+            res.status(401);
+            throw Error("🔴 Email is already registered");
         }
 
         // Hash the password before storing it
@@ -46,20 +43,19 @@ const createUser = async (req, res) => {
         req.token = newToken;
         res.header("token", newToken);
 
-        res.status(201).json({ user, token: newToken });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(201).json({ user });
+    } catch (error) {
+        next(error);
     }
 };
 
-const loginUser = async (req, res) => {
-    const { username, email, password } = req.body;
-
+const loginUser = async (req, res, next) => {
     try {
+        const { username, email, password } = req.body;
+
         if (!username && !email) {
-            return res
-                .status(401)
-                .json({ error: "Username or E-mail is required" });
+            res.status(401);
+            throw Error("🔴 Please provide email or username");
         }
 
         // Find the user with the given email
@@ -69,14 +65,16 @@ const loginUser = async (req, res) => {
         }
 
         if (!user) {
-            return res.status(401).json({ error: "Invalid email or password" });
+            res.status(401);
+            throw Error("🔴 Invalid email or password");
         }
 
         // Check if the password is correct
         const isMatch = await bcrypt.compare(password, user.hash);
 
         if (!isMatch) {
-            return res.status(401).json({ error: "Invalid email or password" });
+            res.status(401);
+            throw Error("🔴 Invalid email or password");
         }
 
         // Generate a JWT token for the authenticated user
@@ -88,26 +86,27 @@ const loginUser = async (req, res) => {
         res.header("token", newToken);
 
         res.status(201).json({ user, token: newToken });
-    } catch (err) {
-        res.status(500).json({ error: err.message, stack: err.stack });
+    } catch (error) {
+        next(error);
     }
 };
 
-const logoutUser = async (req, res) => {
-    // Generate a empty JWT token
-    const token = jwt.sign({}, jwtSecret);
-
-    // Respond with the authenticated user and the JWT token
-    res.status(200).json({ token });
+const logoutUser = async (req, res, next) => {
+    try {
+        res.header("token", undefined);
+        res.status(201).json({ user });
+    } catch (error) {
+        next(error);
+    }
 };
 
-const getUserById = async (req, res) => {
-    const { userId } = req.params;
-
+const getUserById = async (req, res, next) => {
     try {
+        const { userId } = req.params;
         // Find the user with the given ID
         if (!userId || typeof userId !== string || string.length === 24) {
-            return res.status(404).json({ error: "UserId invalid" });
+            res.status(404);
+            throw Error("🔴 UserId is invalid");
         }
 
         const user = await User.findById(userId)
@@ -115,26 +114,28 @@ const getUserById = async (req, res) => {
             .populate("followers", "username")
             .populate("following", "username");
         if (!user) {
-            return res.status(404).json({ error: "User not found" });
+            res.status(401);
+            throw Error("🔴 User is not found");
         }
 
         // Respond with the user data
-        res.json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(200).json(user);
+    } catch (error) {
+        next(error);
     }
 };
 
-const updateUserById = async (req, res) => {
-    const { userId } = req.params;
-    const { username, email, bio, profilePicture } = req.body;
-
+const updateUserById = async (req, res, next) => {
     try {
+        const userId = req.token.id;
+        const { username, email, bio, profilePicture } = req.body;
+
         // Find the user with the given ID
         const user = await User.findById(userId);
 
         if (!user) {
-            return res.status(404).json({ error: "User not found" });
+            res.status(401);
+            throw Error("🔴 User not found");
         }
 
         // Update the user data
@@ -146,26 +147,27 @@ const updateUserById = async (req, res) => {
 
         // Respond with the updated user data
         res.json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    } catch (error) {
+        next(error);
     }
 };
 
-const deleteUserById = async (req, res) => {
-    const { userId } = req.params;
-
+const deleteUserById = async (req, res, next) => {
     try {
+        const userId = req.token.id;
+
         // Find the user with the given ID and remove it from the database
         const user = await User.deleteOne({ _id: userId });
 
         if (!user) {
-            return res.status(404).json({ error: "User not found" });
+            res.status(401);
+            throw Error("🔴 User not found");
         }
 
         // Respond with the removed user
         res.json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    } catch (error) {
+        next(error);
     }
 };
 

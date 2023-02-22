@@ -9,7 +9,7 @@ indexRouters.get("/", async (req, res) => {
         const users = await User.find({}).populate("posts", "content image");
         const posts = await Post.find({})
             .populate("likes", "username")
-            .populate("comments", "content author");
+            .populate("comments", "text author");
         const comments = await Comment.find({})
             .populate("author", "username")
             .populate("likes", "username")

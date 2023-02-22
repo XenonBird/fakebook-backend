@@ -1,22 +1,25 @@
 const Comment = require("../models/comment");
 const Post = require("../models/post");
 
-const createComment = async (req, res) => {
-    const { postId } = req.params;
-    const { content, author } = req.body;
-
+const createComment = async (req, res, next) => {
     try {
+        const { postId } = req.params;
+        const { text } = req.body;
+        const author = req.token.id;
+
         // All validation goes here
         const post = await Post.findById(postId);
         if (!post) {
-            return res.status(404).json({ error: "post not found" });
+            res.status(404);
+            throw Error("🔴 Post not found");
         }
 
-        if (!content) {
-            return res.status(404).json({ error: "content not found" });
+        if (!text) {
+            res.status(404);
+            throw Error("🔴 Text not found");
         }
 
-        const newComment = new Comment({ content, author, post: postId });
+        const newComment = new Comment({ text, author, post: postId });
         const comment = await newComment.save();
 
         post.comments.push(comment._id);
@@ -24,62 +27,64 @@ const createComment = async (req, res) => {
 
         res.status(200).json(comment);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 };
 
-const getCommentById = async (req, res) => {
-    const { commentId } = req.params;
+const getCommentById = async (req, res, next) => {
     try {
+        const { commentId } = req.params;
         const comment = await Comment.findById(commentId)
             .populate("post", "")
             .populate("author", "username")
             .populate("likes", "username");
 
         if (!comment) {
-            return res.status(404).json({ error: "Comment not found" });
+            res.status(404);
+            throw Error("🔴 Comment not found");
         }
 
         res.status(200).json(comment);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 };
 
-const updateCommentById = async (req, res) => {
-    const { commentId } = req.params;
-    const { content } = req.body;
-
+const updateCommentById = async (req, res, next) => {
     try {
+        const { commentId } = req.params;
+        const { text } = req.body;
+
         const comment = await Comment.findById(commentId);
 
         if (!comment) {
-            return res.status(404).json({ error: "Comment not found" });
+            res.status(404);
+            throw Error("🔴 Comment not found");
         }
 
-        comment.content = content || comment.content;
+        comment.text = text || comment.text;
 
-        if (!comment.content) {
-            res.status(500).json(
-                "content and image both can not be empty at the same time"
-            );
+        if (!comment.text) {
+            res.status(404);
+            throw Error("🔴 Text not found");
         }
         await comment.save();
 
         res.status(202).json(comment);
     } catch (error) {
-        res.status(500).json({ error: err.message });
+        next(error);
     }
 };
 
-const deleteCommentById = async (req, res) => {
-    const { commentId } = req.params;
-
+const deleteCommentById = async (req, res, next) => {
     try {
+        const { commentId } = req.params;
+
         const comment = await Comment.deleteOne({ _id: commentId });
 
         if (!comment) {
-            return res.status(404).json({ error: "comment not found" });
+            res.status(404);
+            throw Error("🔴 Comment not found");
         }
 
         const post = await Post.findById(comment.author);
@@ -89,60 +94,65 @@ const deleteCommentById = async (req, res) => {
 
         res.status(200).json(comment);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 };
 
-const addLikeCommentById = async (req, res) => {
-    const { commentId } = req.params;
-    const { user } = req.body;
-
+const addLikeCommentById = async (req, res, next) => {
     try {
-        if (!user) {
-            return res.status(404).json({ error: "User not defined " });
+        const { commentId } = req.params;
+        const author = req.token.id;
+
+        if (!author) {
+            res.status(404);
+            throw Error("🔴 Author not found");
         }
 
         const comment = await Comment.findById(commentId);
 
         if (!comment) {
-            return res.status(404).json({ error: "comment not found" });
+            res.status(404);
+            throw Error("🔴 Comment not found");
         }
 
-        if (comment.likes.includes(user)) {
-            return res.status(400).json("Already liked");
+        if (comment.likes.includes(author)) {
+            res.status(404);
+            throw Error("🔴 Already liked");
         }
 
-        comment.likes.push(user);
+        comment.likes.push(author);
         await comment.save();
 
         res.status(200).json(comment);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 };
 
-const removeLikeCommentById = async (req, res) => {
-    const { commentId } = req.params;
-    const { user } = req.body;
-
+const removeLikeCommentById = async (req, res, next) => {
     try {
-        if (!user) {
-            return res.status(404).json({ error: "User not defined " });
+        const { commentId } = req.params;
+        const author = req.token.id;
+
+        if (!author) {
+            res.status(404);
+            throw Error("🔴 Author not found");
         }
         const Comment = await Comment.findById(commentId);
 
         if (!Comment) {
-            return res.status(404).json({ error: "Comment not found" });
+            res.status(404);
+            throw Error("🔴 Comment not found");
         }
 
-        const likeIndexInLikes = Comment.likes.indexOf(user);
+        const likeIndexInLikes = Comment.likes.indexOf(author);
 
         Comment.likes.splice(likeIndexInLikes, 1);
         await Comment.save();
 
         res.status(200).json(post);
     } catch (error) {
-        res.status(500).json({ error: err.message });
+        next(error);
     }
 };
 

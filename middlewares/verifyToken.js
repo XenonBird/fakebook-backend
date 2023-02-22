@@ -29,9 +29,9 @@ const verifyToken = async (req, res, next) => {
         }
 
         const { iat, ...data } = decodedToken;
+        req.token = data;
 
         const newToken = jwt.sign(data, jwtSecret);
-        req.token = newToken;
         // res.set({ token: newToken });
         res.set({
             token: newToken,
