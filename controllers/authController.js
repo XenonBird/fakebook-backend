@@ -40,14 +40,14 @@ const createUser = async (req, res, next) => {
         await user.save();
 
         // Generate a JWT token for the authenticated user
-        const data = { id: user._id, ip: req.ip };
+        const data = { id: user._id, ip: req.ip, type: user.type };
+        req.token = data;
 
         // Respond with the authenticated user and the JWT token
         const newToken = jwt.sign(data, jwtSecret);
-        req.token = newToken;
         res.header("token", newToken);
 
-        res.status(201).json({ user });
+        res.status(201).json(user);
     } catch (error) {
         next(error);
     }
@@ -70,7 +70,7 @@ const loginUser = async (req, res, next) => {
 
         if (!user) {
             res.status(401);
-            throw Error("🔴 Invalid email or password");
+            throw Error("🔴 Invalid email or username");
         }
 
         // Check if the password is correct
@@ -82,14 +82,14 @@ const loginUser = async (req, res, next) => {
         }
 
         // Generate a JWT token for the authenticated user
-        const data = { id: user._id, ip: req.ip };
+        const data = { id: user._id, ip: req.ip, type: user.type };
+        req.token = data;
 
         // Respond with the authenticated user and the JWT token
         const newToken = jwt.sign(data, jwtSecret);
-        req.token = newToken;
         res.header("token", newToken);
 
-        res.status(201).json({ user, token: newToken });
+        res.status(201).json(user);
     } catch (error) {
         next(error);
     }
@@ -97,8 +97,8 @@ const loginUser = async (req, res, next) => {
 
 const logoutUser = async (req, res, next) => {
     try {
-        res.header("token", undefined);
-        res.status(201).json({ user });
+        res.header("token", "");
+        res.status(201).json("OK");
     } catch (error) {
         next(error);
     }
@@ -106,7 +106,7 @@ const logoutUser = async (req, res, next) => {
 
 const updateUserById = async (req, res, next) => {
     try {
-        const userId = req.token.id;
+        var userId = req.token.id;
         const { username, email, bio, profilePicture } = req.body;
 
         // Find the user with the given ID

@@ -4,6 +4,7 @@ const {
     getUserById,
     followUserById,
     unfollowUserById,
+    getMe,
 } = require("../controllers/userController");
 const verifyToken = require("../middlewares/verifyToken");
 
@@ -12,9 +13,11 @@ userRoutes.get("/:userId", verifyToken, getUserById);
 
 // follow
 // Route for follow an user
-postRoutes.post("/:userId/follow", verifyToken, followUserById);
+userRoutes.post("/:userId/follow", verifyToken, followUserById);
 
 // Route for remove from follow
-postRoutes.post("/:userId/unfollow", verifyToken, unfollowUserById);
+userRoutes.post("/:userId/unfollow", verifyToken, unfollowUserById);
+
+userRoutes.get("/",verifyToken, getMe)
 
 module.exports = userRoutes;

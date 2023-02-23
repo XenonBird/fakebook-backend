@@ -12,7 +12,7 @@ const createPost = async (req, res, next) => {
         }
         // All validation goes here
 
-        const newPost = new Post({ content, image, author:userId });
+        const newPost = new Post({ content, image, author: userId });
         const done = await newPost.save();
 
         const user = await User.findById(userId);

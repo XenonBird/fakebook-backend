@@ -3,7 +3,10 @@ const {
     createUser,
     loginUser,
     logoutUser,
-} = require("../controllers/userController");
+    updateUserById,
+    deleteUserById,
+} = require("../controllers/authController");
+const verifyToken = require("../middlewares/verifyToken");
 
 // Route for creating a new user
 authRoutes.post("/register", createUser);

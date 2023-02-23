@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
-        following: [
+        followings: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema(
                 ref: "Post",
             },
         ],
+        type: {
+            type: String,
+            enum: ["regular", "admin", "developer"],
+            default: "regular",
+        },
     },
     { timestamps: true }
 );

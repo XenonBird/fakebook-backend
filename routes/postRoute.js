@@ -6,6 +6,7 @@ const {
     addLikePostById,
     removeLikePostById,
 } = require("../controllers/postController");
+const { getMe } = require("../controllers/userController");
 const verifyToken = require("../middlewares/verifyToken");
 
 const postRoutes = require("express").Router();
@@ -31,5 +32,8 @@ postRoutes.post("/:postId/like", verifyToken, addLikePostById);
 
 // Route for removing a like from the post
 postRoutes.post("/:postId/unlike", verifyToken, removeLikePostById);
+
+// Route for getting own post will add data
+postRoutes.get("/", verifyToken, getMe);
 
 module.exports = postRoutes;

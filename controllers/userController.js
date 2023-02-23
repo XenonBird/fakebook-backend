@@ -8,15 +8,15 @@ const getUserById = async (req, res, next) => {
     try {
         const { userId } = req.params;
         // Find the user with the given ID
-        if (!userId || typeof userId !== string || string.length === 24) {
+        if (!userId) {
             res.status(404);
             throw Error("🔴 UserId is invalid");
         }
 
         const user = await User.findById(userId)
-            .populate("posts", "content createdAt")
+            .populate("posts", "content createdAt likes comments")
             .populate("followers", "username profilePicture")
-            .populate("following", "username profilePicture");
+            .populate("followings", "username profilePicture");
         if (!user) {
             res.status(401);
             throw Error("🔴 User is not found");
@@ -34,11 +34,7 @@ const followUserById = async (req, res, next) => {
         const thisUserId = req.token.id;
 
         // Find the user with the given ID
-        if (
-            !otherUserId ||
-            typeof otherUserId !== string ||
-            string.length === 24
-        ) {
+        if (!otherUserId) {
             res.status(404);
             throw Error("🔴 Given user id is invalid");
         }
@@ -49,9 +45,9 @@ const followUserById = async (req, res, next) => {
         }
 
         const otherUser = await User.findById(otherUserId)
-            .populate("posts", "content createdAt")
+            .populate("posts", "content createdAt likes comments")
             .populate("followers", "username profilePicture")
-            .populate("following", "username profilePicture");
+            .populate("followings", "username profilePicture");
 
         if (!otherUser) {
             res.status(401);
@@ -82,11 +78,7 @@ const unfollowUserById = async (req, res, next) => {
         const thisUserId = req.token.id;
 
         // Find the user with the given ID
-        if (
-            !otherUserId ||
-            typeof otherUserId !== string ||
-            string.length === 24
-        ) {
+        if (!otherUserId) {
             res.status(404);
             throw Error("🔴 Given user id is invalid");
         }
@@ -97,26 +89,30 @@ const unfollowUserById = async (req, res, next) => {
         }
 
         const otherUser = await User.findById(otherUserId)
-            .populate("posts", "content createdAt")
+            .populate("posts", "content createdAt likes comments")
             .populate("followers", "username profilePicture")
-            .populate("following", "username profilePicture");
+            .populate("followings", "username profilePicture");
 
         if (!otherUser) {
             res.status(401);
             throw Error("🔴 User is not found");
         }
-
-        const indexOfFollower = otherUser.followers.indexOf(thisUserId);
+        // const indexOfFollower = otherUser.followers.indexOf(thisUserId);
+        const indexOfFollower = otherUser.followers.findIndex(
+            (obj) => obj._id.toString() === thisUserId
+        );
 
         if (indexOfFollower < 0) {
             res.status(404);
-            throw Error("🔴 Not following at the first place");
+            console.log(otherUser.followers, thisUserId);
+            throw Error("🔴 Not following at the first place : ");
         }
 
         const thisUser = await User.findById(thisUserId);
 
-        const indexOfFollowing = thisUser.followings.indexOf(thisUserId);
-
+        const indexOfFollowing = thisUser.followings.findIndex(
+            (obj) => obj._id.toString() === otherUserId
+        );
         if (indexOfFollowing < 0) {
             res.status(404);
             throw Error("🔴 Server is busy");
@@ -134,8 +130,34 @@ const unfollowUserById = async (req, res, next) => {
     }
 };
 
+const getMe = async (req, res, next) => {
+    try {
+        const userId = req.token.id;
+        // Find the user with the given ID
+        if (!userId) {
+            res.status(404);
+            throw Error("🔴 UserId is invalid");
+        }
+
+        const user = await User.findById(userId)
+            .populate("posts", "content createdAt likes comments")
+            .populate("followers", "username profilePicture")
+            .populate("followings", "username profilePicture");
+        if (!user) {
+            res.status(401);
+            throw Error("🔴 User is not found");
+        }
+
+        // Respond with the user data
+        res.status(200).json(user);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getUserById,
     followUserById,
     unfollowUserById,
+    getMe,
 };
