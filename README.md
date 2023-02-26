@@ -120,6 +120,11 @@ Test the API
 
 You can test the API by sending requests to the server using a tool like Postman, curl or Thunder Client (vscode extension).
 
+# Contribution guide
+
+Create your branch and modifiy as you want then commit to your branch. If everything is going alright then made a  pull request.
+> **_NOTE:_** Thank you for your contribution in ADVANCE.
+
 # Licensing Information
 😉 We want to make it easy for everyone to use, learn, practice and build upon our work, so we have chosen to make everything on this page copyright-free.
 
